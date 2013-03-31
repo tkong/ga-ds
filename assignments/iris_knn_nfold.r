@@ -74,6 +74,9 @@ print(results)
 # Plot average generalization error against k for every n-folds series 
 #################################################
 
-results.plot <- ggplot(results, aes(x=k, y=avg.gzn.error, color=n.folds)) 
-results.plot <- results.plot + geom_point() + geom_line() + theme_bw() + ggtitle('knn n-fold cross validation') + xlab('k') + ylab('Average Generalization Error')
+results.plot <- ggplot(results, aes(x=k, y=avg.gzn.error, color=n.folds)) +
+                geom_point() + geom_line() + theme_bw() +
+                scale_x_continuous(breaks=1:max.k) +
+                ggtitle('knn n-fold cross validation') + xlab('k') + ylab('Average Generalization Error')
+
 print(results.plot)
