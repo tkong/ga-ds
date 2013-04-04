@@ -2,10 +2,10 @@ library(class)
 library(ggplot2)
 
 #################################################
-# Manual parameters and data load
+# Manual set some parameters and load iris data
 #################################################
 
-data <- iris                # create copy of iris dataframe
+data <- iris        # create copy of iris dataframe
 
 set.seed(1)         # initialize random seed for consistency
 max.folds <- 10
@@ -23,14 +23,13 @@ knn.wrapper <- function(testPartitionNum, k, dframe, labelcol) {
 
   train.labels <- dframe[train.index, labelcol]      # extract training set labels
   test.labels <- dframe[test.index, labelcol]        # extract test set labels
-    
   dframe[, labelcol] <- NULL                         # remove labels from feature set
   
-  train.data <- dframe[train.index,]                 # perform train/test split
-  test.data <- dframe[test.index,]                   # note use of neg index...different than Python!
+  train.data <- dframe[train.index,]                 # training set
+  test.data <- dframe[test.index,]                   # test set
 
-  knn.fit <- knn(train = train.data,  # training set, not parition x
-                 test = test.data,    # test set, partition x
+  knn.fit <- knn(train = train.data,  # training set, data not in partition
+                 test = test.data,    # test set, data in partition
                  cl = train.labels,   # true labels
                  k = k)               # number of NN to poll
 
@@ -60,9 +59,9 @@ knn.nfold <- function(n, k, dframe, labelcol) {
 }
 
 
-#################################################
+#######################################################################
 # Run knn with n-fold cross-validation for every combination of n and k
-#################################################
+#######################################################################
 
 nk <- expand.grid(n=2:max.folds, k=1:max.k) # data frame containing every combination of 2:max.folds and 1:max.k
 
@@ -70,13 +69,14 @@ results <- data.frame()       # initialize results object
 results <- data.frame(n.folds = as.factor(nk$n), k = nk$k, avg.gzn.error = mapply(knn.nfold, nk$n, nk$k, dframe=list(data), labelcol="Species"))
 print(results)
 
-#################################################
+#######################################################################
 # Plot average generalization error against k for every n-folds series 
-#################################################
+#######################################################################
 
 results.plot <- ggplot(results, aes(x=k, y=avg.gzn.error, color=n.folds)) +
                 geom_point() + geom_line() + theme_bw() +
                 scale_x_continuous(breaks=1:max.k) +
+                labs(color="Folds") +
                 ggtitle('knn n-fold cross validation') + xlab('k') + ylab('Average Generalization Error')
 
 print(results.plot)
